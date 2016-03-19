@@ -24,4 +24,16 @@ func TestNile(t *testing.T) {
 		So(evens, should.Contain, 4)
 		So(len(evens), should.Equal, 3)
 	})
+
+	Convey("From(Range) -> Then(Collect)", t, func() {
+		var evens []int
+
+		err := nile.From(Range(0, 3)).Then(Collect(&evens)).Run()
+
+		So(err, should.BeNil)
+		So(evens, should.Contain, 0)
+		So(evens, should.Contain, 1)
+		So(evens, should.Contain, 2)
+		So(len(evens), should.Equal, 3)
+	})
 }
