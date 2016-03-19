@@ -1,13 +1,13 @@
 package consumers
 
 import (
-	"reflect"
 	"github.com/drborges/nile"
 	"github.com/drborges/nile/checks"
 	"github.com/drborges/nile/stream"
+	"reflect"
 )
 
-func Collector(dst interface{}) nile.Consumer {
+func Collect(dst interface{}) nile.Consumer {
 	val := reflect.ValueOf(dst)
 	if err := checks.SlicePtr(val); err != nil {
 		panic(err)

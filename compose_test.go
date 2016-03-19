@@ -1,13 +1,13 @@
 package nile_test
 
 import (
-	"testing"
-	. "github.com/smartystreets/goconvey/convey"
-	"github.com/drborges/nile/context"
-	"github.com/drborges/nile/transformers"
-	"github.com/drborges/nile/stream"
-	"github.com/smartystreets/assertions/should"
 	"github.com/drborges/nile"
+	"github.com/drborges/nile/context"
+	"github.com/drborges/nile/stream"
+	"github.com/drborges/nile/transformers"
+	"github.com/smartystreets/assertions/should"
+	. "github.com/smartystreets/goconvey/convey"
+	"testing"
 )
 
 func TestCompose(t *testing.T) {
@@ -15,7 +15,7 @@ func TestCompose(t *testing.T) {
 		ctx := context.New()
 
 		Convey("And two filters bound to the context", func() {
-			evens := func(data stream.T) bool { return data.(int) % 2 == 0 }
+			evens := func(data stream.T) bool { return data.(int)%2 == 0 }
 			gt4 := func(data stream.T) bool { return data.(int) > 4 }
 
 			evensOnlyFilter := transformers.Filter(evens)(ctx)
@@ -23,7 +23,10 @@ func TestCompose(t *testing.T) {
 
 			Convey("When a stream of numbers is filtered by the composition of these filters", func() {
 				r, w := stream.New(4)
-				w <- 1; w <- 2; w <- 6; w <- 7
+				w <- 1
+				w <- 2
+				w <- 6
+				w <- 7
 				close(w)
 
 				filter := nile.Compose(evensOnlyFilter, gt4Filter)

@@ -2,7 +2,7 @@ package stream
 
 type T interface{}
 type Readable <-chan T
-type Writable chan <- T
+type Writable chan<- T
 
 var Empty = func() Readable {
 	r, w := New(0)

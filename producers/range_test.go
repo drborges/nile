@@ -1,12 +1,12 @@
 package producers_test
 
 import (
-	"testing"
-	. "github.com/smartystreets/goconvey/convey"
+	"errors"
 	"github.com/drborges/nile/context"
 	"github.com/drborges/nile/producers"
 	"github.com/smartystreets/assertions/should"
-	"errors"
+	. "github.com/smartystreets/goconvey/convey"
+	"testing"
 	"time"
 )
 

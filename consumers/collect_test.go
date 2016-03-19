@@ -1,27 +1,28 @@
 package consumers_test
 
 import (
-	"testing"
-	. "github.com/smartystreets/goconvey/convey"
+	"errors"
+	"github.com/drborges/nile/consumers"
 	"github.com/drborges/nile/context"
 	"github.com/drborges/nile/stream"
 	"github.com/smartystreets/assertions/should"
-	"github.com/drborges/nile/consumers"
-	"errors"
+	. "github.com/smartystreets/goconvey/convey"
+	"testing"
 	"time"
 )
 
-func TestCollector(t *testing.T) {
+func TestCollect(t *testing.T) {
 	Convey("Given a new context", t, func() {
 		ctx := context.New()
 
 		Convey("And a collector bound to the context", func() {
 			var numbers []int
-			collect := consumers.Collector(&numbers)(ctx)
+			collect := consumers.Collect(&numbers)(ctx)
 
 			Convey("When a stream of numbers is collected by the collector", func() {
 				r, w := stream.New(2)
-				w <- 1; w <- 2
+				w <- 1
+				w <- 2
 				close(w)
 
 				collect(r)
@@ -38,7 +39,8 @@ func TestCollector(t *testing.T) {
 
 				Convey("Then data is still collected from the upstream", func() {
 					r, w := stream.New(2)
-					w <- 1; w <- 2
+					w <- 1
+					w <- 2
 					close(w)
 
 					collect(r)
@@ -54,7 +56,8 @@ func TestCollector(t *testing.T) {
 
 				Convey("Then data is no longer collected from the upstream", func() {
 					r, w := stream.New(2)
-					w <- 1; w <- 2
+					w <- 1
+					w <- 2
 					close(w)
 
 					collect(r)

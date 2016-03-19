@@ -1,11 +1,11 @@
 package checks_test
 
 import (
-	"testing"
+	"github.com/drborges/nile/checks"
+	"github.com/smartystreets/assertions/should"
 	. "github.com/smartystreets/goconvey/convey"
 	"reflect"
-	"github.com/smartystreets/assertions/should"
-	"github.com/drborges/nile/checks"
+	"testing"
 )
 
 func TestFlattenableCheck(t *testing.T) {
