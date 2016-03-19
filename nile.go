@@ -1,6 +1,7 @@
 package nile
 
 import (
+	"github.com/drborges/nile/context"
 	"github.com/drborges/nile/stream"
 )
 
@@ -27,6 +28,37 @@ type Consume func(in stream.Readable)
 type Pipe func(from stream.Readable, to stream.Writable)
 type Merge func(in ...stream.Readable) (out stream.Readable)
 type Fork func(in stream.Readable) (out1 stream.Readable, out2 stream.Readable)
+
+type Pipeline struct {
+	ctx        Context
+	source     Produce
+	transforms Transform
+	sink       Consume
+}
+
+func From(producer Producer) Pipeline {
+	ctx := context.New()
+	return Pipeline{
+		ctx:        ctx,
+		source:     producer(ctx),
+		transforms: noop,
+	}
+}
+
+func (pipe Pipeline) Apply(transformer Transformer) Pipeline {
+	pipe.transforms = Compose(pipe.transforms, transformer(pipe.ctx))
+	return pipe
+}
+
+func (pipe Pipeline) Then(consumer Consumer) error {
+	pipe.sink = consumer(pipe.ctx)
+	pipe.sink(pipe.transforms(pipe.source()))
+	return pipe.ctx.Err()
+}
+
+func noop(in stream.Readable) (out stream.Readable) {
+	return in
+}
 
 func Compose(a Transform, b Transform) Transform {
 	return func(in stream.Readable) stream.Readable {
