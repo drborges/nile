@@ -16,7 +16,7 @@ func TestNile(t *testing.T) {
 		var evens []int
 		evensOnly := func(data stream.T) bool { return data.(int)%2 == 0 }
 
-		err := nile.From(Range(0, 5)).Apply(Filter(evensOnly)).Then(Collect(&evens))
+		err := nile.From(Range(0, 5)).Apply(Filter(evensOnly)).Then(Collect(&evens)).Run()
 
 		So(err, should.BeNil)
 		So(evens, should.Contain, 0)

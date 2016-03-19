@@ -22,7 +22,6 @@ func Filter(fn nile.Predicate) nile.Transformer {
 						}
 					}
 				}
-
 			}()
 
 			return r

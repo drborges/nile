@@ -18,6 +18,11 @@ type Transformer func(Context) Transform
 type Piper func(Context) Pipe
 type Merger func(Context) Merge
 type Forker func(Context) Fork
+type Runner func() error
+
+func (runner Runner) Run() error {
+	return runner()
+}
 
 type Mapping func(data stream.T) stream.T
 type Predicate func(data stream.T) bool
@@ -50,10 +55,12 @@ func (pipe Pipeline) Apply(transformer Transformer) Pipeline {
 	return pipe
 }
 
-func (pipe Pipeline) Then(consumer Consumer) error {
+func (pipe Pipeline) Then(consumer Consumer) Runner {
 	pipe.sink = consumer(pipe.ctx)
-	pipe.sink(pipe.transforms(pipe.source()))
-	return pipe.ctx.Err()
+	return func() error {
+		pipe.sink(pipe.transforms(pipe.source()))
+		return pipe.ctx.Err()
+	}
 }
 
 func noop(in stream.Readable) (out stream.Readable) {

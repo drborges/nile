@@ -20,7 +20,6 @@ func Mapper(fn nile.Mapping) nile.Transformer {
 					case w <- fn(data):
 					}
 				}
-
 			}()
 
 			return r
