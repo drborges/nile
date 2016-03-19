@@ -18,8 +18,8 @@ func TestCompose(t *testing.T) {
 			evens := func(data stream.T) bool { return data.(int)%2 == 0 }
 			gt4 := func(data stream.T) bool { return data.(int) > 4 }
 
-			evensOnlyFilter := transformers.Filter(evens)(ctx)
-			gt4Filter := transformers.Filter(gt4)(ctx)
+			evensOnlyFilter := transformers.Filter(evens)
+			gt4Filter := transformers.Filter(gt4)
 
 			Convey("When a stream of numbers is filtered by the composition of these filters", func() {
 				r, w := stream.New(4)
@@ -32,7 +32,7 @@ func TestCompose(t *testing.T) {
 				filter := nile.Compose(evensOnlyFilter, gt4Filter)
 
 				Convey("Then only filtered items should be sent downstream", func() {
-					stream := filter(r)
+					stream := filter(ctx)(r)
 
 					So(<-stream, should.Equal, 6)
 					data, more := <-stream

@@ -18,10 +18,14 @@ type Transformer func(Context) Transform
 type Piper func(Context) Pipe
 type Merger func(Context) Merge
 type Forker func(Context) Fork
-type Runner func() error
+type Runner func(ctx Context) error
 
 func (runner Runner) Run() error {
-	return runner()
+	return runner(context.New())
+}
+
+func (runner Runner) RunWith(ctx Context) error {
+	return runner(ctx)
 }
 
 type Mapping func(data stream.T) stream.T
@@ -35,41 +39,42 @@ type Merge func(in ...stream.Readable) (out stream.Readable)
 type Fork func(in stream.Readable) (out1 stream.Readable, out2 stream.Readable)
 
 type Pipeline struct {
-	ctx        Context
-	source     Produce
-	transforms Transform
-	sink       Consume
+	source      Producer
+	transformer Transformer
+	sink        Consumer
 }
 
 func From(producer Producer) Pipeline {
-	ctx := context.New()
 	return Pipeline{
-		ctx:        ctx,
-		source:     producer(ctx),
-		transforms: noop,
+		source:      producer,
+		transformer: noop,
 	}
 }
 
 func (pipe Pipeline) Apply(transformer Transformer) Pipeline {
-	pipe.transforms = Compose(pipe.transforms, transformer(pipe.ctx))
+	pipe.transformer = Compose(pipe.transformer, transformer)
 	return pipe
 }
 
 func (pipe Pipeline) Then(consumer Consumer) Runner {
-	pipe.sink = consumer(pipe.ctx)
-	return func() error {
-		pipe.sink(pipe.transforms(pipe.source()))
-		return pipe.ctx.Err()
+	pipe.sink = consumer
+	return func(ctx Context) error {
+		pipe.sink(ctx)(pipe.transformer(ctx)(pipe.source(ctx)()))
+		return ctx.Err()
 	}
 }
 
-func noop(in stream.Readable) (out stream.Readable) {
-	return in
+func noop(ctx Context) Transform {
+	return func(in stream.Readable) (out stream.Readable) {
+		return in
+	}
 }
 
-func Compose(a Transform, b Transform) Transform {
-	return func(in stream.Readable) stream.Readable {
-		return b(a(in))
+func Compose(a Transformer, b Transformer) Transformer {
+	return func(ctx Context) Transform {
+		return func(in stream.Readable) stream.Readable {
+			return b(ctx)(a(ctx)(in))
+		}
 	}
 }
 
