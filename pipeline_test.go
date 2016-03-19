@@ -12,7 +12,7 @@ import (
 	"testing"
 )
 
-func TestNile(t *testing.T) {
+func TestPipeline(t *testing.T) {
 	Convey("From(Range) -> Apply(Filter) -> Then(Collect) -> Run()", t, func() {
 		var evens []int
 		evensOnly := func(data stream.T) bool { return data.(int)%2 == 0 }

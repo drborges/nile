@@ -38,38 +38,6 @@ type Pipe func(from stream.Readable, to stream.Writable)
 type Merge func(in ...stream.Readable) (out stream.Readable)
 type Fork func(in stream.Readable) (out1 stream.Readable, out2 stream.Readable)
 
-type Pipeline struct {
-	source      Producer
-	transformer Transformer
-	sink        Consumer
-}
-
-func From(producer Producer) Pipeline {
-	return Pipeline{
-		source:      producer,
-		transformer: noop,
-	}
-}
-
-func (pipe Pipeline) Apply(transformer Transformer) Pipeline {
-	pipe.transformer = Compose(pipe.transformer, transformer)
-	return pipe
-}
-
-func (pipe Pipeline) Then(consumer Consumer) Runner {
-	pipe.sink = consumer
-	return func(ctx Context) error {
-		pipe.sink(ctx)(pipe.transformer(ctx)(pipe.source(ctx)()))
-		return ctx.Err()
-	}
-}
-
-func noop(ctx Context) Transform {
-	return func(in stream.Readable) (out stream.Readable) {
-		return in
-	}
-}
-
 func Compose(a Transformer, b Transformer) Transformer {
 	return func(ctx Context) Transform {
 		return func(in stream.Readable) stream.Readable {
