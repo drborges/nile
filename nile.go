@@ -18,6 +18,7 @@ type Piper func(Context) Pipe
 type Merger func(Context) Merge
 type Forker func(Context) Fork
 
+type Mapping func(data stream.T) stream.T
 type Predicate func(data stream.T) bool
 
 type Produce func() (out stream.Readable)
