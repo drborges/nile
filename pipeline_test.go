@@ -51,4 +51,20 @@ func TestPipeline(t *testing.T) {
 		So(evens, should.Contain, 2)
 		So(len(evens), should.Equal, 3)
 	})
+
+	Convey("From(Range) -> Then(PipeTo(w)) -> RunWith(ctx)", t, func(c C) {
+		r, w := stream.New(0)
+
+		go func() {
+			err := nile.From(Range(0, 3)).Then(PipeTo(w)).Run()
+			c.So(err, should.BeNil)
+		}()
+
+		So(<-r, should.Equal, 0)
+		So(<-r, should.Equal, 1)
+		So(<-r, should.Equal, 2)
+		data, more := <-r
+		So(data, should.BeNil)
+		So(more, should.BeFalse)
+	})
 }
