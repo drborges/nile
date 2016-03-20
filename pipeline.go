@@ -1,6 +1,19 @@
 package nile
 
-import "github.com/drborges/nile/stream"
+import (
+	"github.com/drborges/nile/context"
+	"github.com/drborges/nile/stream"
+)
+
+type Runner func(ctx Context) error
+
+func (runner Runner) Run() error {
+	return runner(context.New())
+}
+
+func (runner Runner) RunWith(ctx Context) error {
+	return runner(ctx)
+}
 
 type Pipeline struct {
 	source      Producer
