@@ -61,6 +61,25 @@ func TestPipeline(t *testing.T) {
 		So(<-r, should.Equal, 0)
 		So(<-r, should.Equal, 1)
 		So(<-r, should.Equal, 2)
+
+		data, more := <-r
+		So(data, should.BeNil)
+		So(more, should.BeFalse)
+	})
+
+	Convey("From(Range) -> Split() -> RunWith(ctx)", t, func() {
+		p1, p2, runner := nile.From(Range(0, 3)).Split()
+
+		runner1 := p1.Apply(Filter(evensOnly)).Then(Collect(&evens))
+		runner2 := p2.Apply(Filter(oddsOnly)).Then(Collect(&odds))
+
+		err := nile.RunAll(runner, runner1, runner2)
+
+		So(err, should.BeNil)
+		So(<-r, should.Equal, 0)
+		So(<-r, should.Equal, 1)
+		So(<-r, should.Equal, 2)
+
 		data, more := <-r
 		So(data, should.BeNil)
 		So(more, should.BeFalse)
